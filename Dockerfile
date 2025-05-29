@@ -6,6 +6,10 @@ ENV RMW_IMPLEMENTATION="rmw_cyclonedds_cpp"
 
 SHELL ["/bin/bash", "-c"]
 
+# Use local ubuntu mirror
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu|http://ubuntu.task.gda.pl/ubuntu|g' /etc/apt/sources.list && \
+    sed -i 's|http://security.ubuntu.com/ubuntu|http://ubuntu.task.gda.pl/ubuntu|g' /etc/apt/sources.list
+
 RUN apt-get update --fix-missing && \
     apt-get install -y \
         git \
@@ -21,7 +25,7 @@ RUN apt-get update --fix-missing && \
 
 RUN pip3 install transforms3d
 
-RUN git clone https://github.com/f1tenth/f1tenth_gym && \
+RUN git clone https://github.com/RoboRacer-SKAR-PG/f1tenth_gym && \
     pip3 install -e ./f1tenth_gym
 
 RUN mkdir -p /sim_ws/src/f1tenth_gym_ros
