@@ -41,9 +41,9 @@ bridge:
     scan_fov: 4.7
     scan_beams: 1080
 
-    # map parameters
-    map_path: '/sim_ws/src/f1tenth_gym_ros/maps/Spielberg_map'
-    map_img_ext: '.png'
+    # map parameters, replaced by ../run_simulation.sh script
+    map_path: '/sim_ws/src/f1tenth_gym_ros/maps/REPLACE_WITH_MAP_NAME'
+    map_img_ext: 'REPLACE_WITH_MAP_EXT'
 
     # opponent parameters
     num_agent: 1

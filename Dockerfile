@@ -39,4 +39,4 @@ RUN source /opt/ros/foxy/setup.bash && \
 
 WORKDIR /sim_ws
 
-CMD ["bash", "-c", "source /opt/ros/foxy/setup.bash && source install/setup.bash && ros2 launch f1tenth_gym_ros gym_bridge_launch.py"]
+CMD ["/bin/bash", "-c", "source /opt/ros/foxy/setup.bash && source install/setup.bash && ros2 launch f1tenth_gym_ros gym_bridge_launch.py"]
