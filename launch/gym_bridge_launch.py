@@ -25,8 +25,8 @@ import pathlib
 import yaml
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, ExecuteProcess, LogInfo
-from launch.conditions import IfCondition
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, LogInfo, SetLaunchConfiguration
+from launch.conditions import IfCondition, LaunchConfigurationEquals
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
@@ -65,10 +65,18 @@ def generate_launch_description():
     ld = LaunchDescription()
     package_share = get_package_share_directory('f1tenth_gym_ros')
     config = os.path.join(package_share, 'config', 'sim.yaml')
-    config_dict = yaml.safe_load(open(config, 'r'))
+    with open(config, 'r') as config_file:
+        config_dict = yaml.safe_load(config_file)
     has_opp = config_dict['bridge']['ros__parameters']['num_agent'] > 1
     teleop = config_dict['bridge']['ros__parameters']['kb_teleop']
     use_sim_time = config_dict['bridge']['ros__parameters']['use_sim_time']
+    foxglove_config = config_dict.get('foxglove', {})
+    if 'ros__parameters' in foxglove_config:
+        foxglove_config = foxglove_config['ros__parameters']
+    open_foxglove_default = str(foxglove_config.get('open_foxglove', True)).lower()
+    foxglove_target_default = str(foxglove_config.get('target', 'browser')).lower()
+    if foxglove_target_default not in ('browser', 'studio'):
+        raise ValueError("config/foxglove/target must be either 'browser' or 'studio'.")
 
     bridge_node = Node(
         package='f1tenth_gym_ros',
@@ -83,6 +91,8 @@ def generate_launch_description():
     foxglove_port = LaunchConfiguration('foxglove_port')
     foxglove_app_url = LaunchConfiguration('foxglove_app_url')
     open_foxglove = LaunchConfiguration('open_foxglove')
+    foxglove_target = LaunchConfiguration('foxglove_target')
+    foxglove_open_url = LaunchConfiguration('foxglove_open_url')
     foxglove_ws_url_parts = ['ws://', foxglove_host, ':', foxglove_port]
     foxglove_layout = LaunchConfiguration('foxglove_layout')
 
@@ -94,12 +104,13 @@ def generate_launch_description():
         output='screen',
     )
     foxglove_open = ExecuteProcess(
-        cmd=['xdg-open', foxglove_app_url],
+        cmd=['xdg-open', foxglove_open_url],
         condition=IfCondition(open_foxglove),
         output='screen',
     )
     foxglove_log = LogInfo(msg=['\033[34mFoxglove app: ', foxglove_app_url, '\033[0m'])
     foxglove_ws_log = LogInfo(msg=['\033[34mFoxglove WebSocket: '] + foxglove_ws_url_parts + ['\033[0m'])
+    foxglove_target_log = LogInfo(msg=['\033[34mFoxglove target: ', foxglove_target, '\033[0m'])
     foxglove_layout_log = LogInfo(msg=['\033[34mFoxglove layout: ', foxglove_layout, '\033[0m'])
 
     # Create custom yaml file for map server by copying the original yaml file and scaling the resolution.
@@ -234,8 +245,28 @@ def generate_launch_description():
     ld.add_action(
         DeclareLaunchArgument(
             'open_foxglove',
-            default_value='true',
-            description='Whether to open Foxglove in a browser.',
+            default_value=open_foxglove_default,
+            description='Whether to open Foxglove automatically.',
+        )
+    )
+    ld.add_action(
+        DeclareLaunchArgument(
+            'foxglove_target',
+            default_value=foxglove_target_default,
+            description="Where to open Foxglove: 'browser' or 'studio'.",
+        )
+    )
+    ld.add_action(
+        SetLaunchConfiguration(
+            'foxglove_open_url',
+            [foxglove_app_url, '/?ds=foxglove-websocket&ds.url=ws://', foxglove_host, ':', foxglove_port],
+        )
+    )
+    ld.add_action(
+        SetLaunchConfiguration(
+            'foxglove_open_url',
+            ['foxglove://open?ds=foxglove-websocket&ds.url=ws://', foxglove_host, ':', foxglove_port],
+            condition=LaunchConfigurationEquals('foxglove_target', 'studio'),
         )
     )
     ld.add_action(foxglove_bridge_node)
@@ -248,6 +279,7 @@ def generate_launch_description():
         ld.add_action(opp_robot_publisher)
     ld.add_action(foxglove_log)
     ld.add_action(foxglove_ws_log)
+    ld.add_action(foxglove_target_log)
     ld.add_action(foxglove_layout_log)
 
     return ld

@@ -80,3 +80,10 @@ bridge:
     # If false, only steps sim on new /drive messages.
     # If true, the simulation will step using a timer callback.
     async_mode: True
+
+foxglove:
+  ros__parameters:
+    # Automatically open Foxglove when the launch file starts.
+    open_foxglove: True
+    # Where to open Foxglove. Valid values: 'browser' or 'studio'.
+    target: 'browser'
