@@ -193,7 +193,7 @@ def generate_launch_description():
         parameters=[
             {'robot_description': Command([
                 'xacro ',
-                os.path.join(get_package_share_directory('f1tenth_gym_ros'), 'launch', ego_xacro)
+                os.path.join(get_package_share_directory('f1tenth_gym_ros'), 'urdf', ego_xacro)
             ])},
             {'use_sim_time': use_sim_time},
         ],
@@ -206,7 +206,7 @@ def generate_launch_description():
         parameters=[
             {'robot_description': Command([
                 'xacro ',
-                os.path.join(get_package_share_directory('f1tenth_gym_ros'), 'launch', 'opp_racecar.xacro')
+                os.path.join(get_package_share_directory('f1tenth_gym_ros'), 'urdf', 'opp_racecar.xacro')
             ])},
             {'use_sim_time': use_sim_time},
         ],
@@ -238,7 +238,7 @@ def generate_launch_description():
     ld.add_action(
         DeclareLaunchArgument(
             'foxglove_layout',
-            default_value=os.path.join(package_share, 'launch', 'gym_bridge_foxglove.json'),
+            default_value=os.path.join(package_share, 'config', 'foxglove', 'gym_bridge_foxglove.json'),
             description='Path to Foxglove layout JSON.',
         )
     )
