@@ -103,7 +103,13 @@ source /opt/ros/humble/setup.bash
 source install/local_setup.bash
 ros2 launch f1tenth_gym_ros gym_bridge_launch.py
 ```
-A browser window should pop up redirecting you to [https://app.foxglove.dev](https://app.foxglove.dev). You will then need to connect to click on `Open Connection`, then chose `Foxglove Websocket` and paste in the websocket's address printed in the terminal in blue i.e `[INFO] [launch.user]: Foxglove WebSocket: ws://localhost:8765`. If you can see the topics on the left, then the connection is complete. To visualize the simulation, you will need to change layout by importing the layout file `gym_bridge_foxglove.json` in the launch folder of this package. Foxglove is the recommended setup, but if you prefer RViz (old Gym setup), you can also use rviz to visualize the sim, with `gym_bridge.rviz` available in the launch folder of this package too.
+By default, Foxglove auto-opens and preselects the websocket connection (`ws://localhost:8765`).
+
+If Foxglove does not auto-open (for example in headless/container setups), open it manually:
+- Browser: [https://app.foxglove.dev/?ds=foxglove-websocket&ds.url=ws://localhost:8765](https://app.foxglove.dev/?ds=foxglove-websocket&ds.url=ws://localhost:8765)
+- Studio: `foxglove://open?ds=foxglove-websocket&ds.url=ws://localhost:8765`
+
+To visualize the simulation, import the layout file `config/foxglove/gym_bridge_foxglove.json`. Foxglove is the recommended setup, but if you prefer RViz (old Gym setup), use `config/rviz/gym_bridge.rviz`.
 
 You can then run another node by creating another bash session in `tmux` or a separate terminal.
 
@@ -113,6 +119,14 @@ You can then run another node by creating another bash session in `tmux` or a se
 - The map can be changed via the `map_path` parameter. It can be a package-relative path like `maps/levine` or a built-in gym track name like `Spielberg`. The map follows the ROS convention; the image file and the `yaml` file should live together.
 - The `num_agent` parameter can be changed to either 1 or 2 for single or two agent racing. Multi-agent racing (>2) is planned, but not yet supported by the gym_ros.
 - The ego and opponent starting pose can also be changed via parameters, these are in the global map coordinate frame.
+- Foxglove launch behavior can be configured in `sim.yaml` under `foxglove.ros__parameters`:
+  - `open_foxglove`: `True` or `False`
+  - `target`: `'browser'` or `'studio'`
+- You can also override these at launch time:
+```bash
+ros2 launch f1tenth_gym_ros gym_bridge_launch.py open_foxglove:=false
+ros2 launch f1tenth_gym_ros gym_bridge_launch.py foxglove_target:=studio
+```
 
 The entire directory of the repo is mounted to a workspace `/sim_ws/src` as a package. All changes made in the repo on the host system will also reflect in the container. After changing the configuration, run `colcon build` again in the container workspace to make sure the changes are reflected.
 
