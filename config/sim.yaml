@@ -34,18 +34,29 @@ bridge:
     opp_ego_odom_topic: 'opp_odom'
     opp_drive_topic: 'opp_drive'
 
-    # transform related
-    scan_distance_to_base_link: 0.0
+    # LiDAR related parameters
+    lidar_enabled: True
+    lidar_base_link_to_lidar_tf: [0.275, 0.0, 0.0] # x, y, yaw from base_link to lidar
+    lidar_noise_std: 0.01 # LiDAR accuracy - modelled as zero-mean Gaussian noise with this standard deviation (in meters)
     
-    # laserscan parameters
-    scan_fov: 4.7
-    scan_beams: 1080
+    # laserscan parameters (default values are SICK TIM571 configuration (270° FOV))
+    scan_num_beams: 819 # Number of laser beams in LiDAR scan (resolution = (scan_angle_max - scan_angle_min) / scan_num_beams)
+    scan_range_min: 0.05 # 5cm
+    scan_range_max: 25.0 # 25m
+    # Angles have to be in degrees
+    scan_angle_min: -135.0 # -135°
+    scan_angle_max: 135.0 # 135°
 
     # map parameters, replaced by ../run_simulation.sh script
     map_path: '/sim_ws/src/f1tenth_gym_ros/maps/REPLACE_WITH_MAP_NAME'
     map_img_ext: 'REPLACE_WITH_MAP_EXT'
 
-    # opponent parameters
+    # car parameters and scale
+    # Supported vehicle parameters are 'f1tenth', 'fullscale', and 'f1fifth'
+    vehicle_params: 'f1tenth'
+    scale: 1.0
+
+    # number of agents, currently only supports 1 or 2
     num_agent: 1
 
     # ego starting pose on map
@@ -60,3 +71,19 @@ bridge:
 
     # teleop
     kb_teleop: True
+
+    # use simulation time
+    # When true, the bridge will publish the simulation time on the /clock topic
+    # and the simulation will run as fast as possible.
+    use_sim_time: False
+
+    # If false, only steps sim on new /drive messages.
+    # If true, the simulation will step using a timer callback.
+    async_mode: True
+
+foxglove:
+  ros__parameters:
+    # Automatically open Foxglove when the launch file starts.
+    open_foxglove: True
+    # Where to open Foxglove. Valid values: 'browser' or 'studio'.
+    target: 'browser'
