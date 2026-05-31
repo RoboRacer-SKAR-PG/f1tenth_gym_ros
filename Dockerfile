@@ -23,13 +23,11 @@ RUN apt-get update --fix-missing && \
     apt-get -y dist-upgrade && \
     rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install transforms3d
-
-RUN git clone https://github.com/RoboRacer-SKAR-PG/f1tenth_gym && \
-    pip3 install -e ./f1tenth_gym
-
 RUN mkdir -p /sim_ws/src/f1tenth_gym_ros
 COPY . /sim_ws/src/f1tenth_gym_ros
+
+RUN pip3 install transforms3d && \
+    pip3 install -e /sim_ws/src/f1tenth_gym_ros/f1tenth_gym
 
 RUN source /opt/ros/foxy/setup.bash && \
     cd /sim_ws && \

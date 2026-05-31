@@ -38,7 +38,7 @@ bridge:
     scan_distance_to_base_link: 0.0
     
     # laserscan parameters
-    scan_fov: 4.7
+    scan_fov: 6.28318531
     scan_beams: 1080
 
     # map parameters, replaced by ../run_simulation.sh script
